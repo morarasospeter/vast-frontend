@@ -91,7 +91,7 @@
   <script>
     async function loadQuestions() {
       try {
-        const response = await fetch("http://localhost:5000/api/questions");
+        const response = await fetch("https://vast-backend-l9in.onrender.com/api/questions");
         const questions = await response.json();
 
         const tableBody = document.querySelector("#questionsTable tbody");
@@ -128,7 +128,7 @@
       const answerText = document.getElementById(`answer-${id}`).value;
 
       try {
-        const response = await fetch(`http://localhost:5000/api/questions/${id}/answer`, {
+        const response = await fetch(`https://vast-backend-l9in.onrender.com/api/questions/${id}/answer`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ answer: answerText })
@@ -147,3 +147,4 @@
   </script>
 </body>
 </html>
+
