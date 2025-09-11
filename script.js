@@ -7,7 +7,7 @@ document.getElementById("questionForm").addEventListener("submit", async functio
     question: document.getElementById("question").value
   };
 
-  let response = await fetch("http://localhost:5000/api/questions", {
+  let response = await fetch("https://vast-backend-l9in.onrender.com/api/questions", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
@@ -15,4 +15,5 @@ document.getElementById("questionForm").addEventListener("submit", async functio
 
   let result = await response.json();
   document.getElementById("message").innerText = result.message;
+
 });
