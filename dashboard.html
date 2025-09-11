@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>V@St Solutions Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      margin: 20px;
+    }
+
+    h1 {
+      color: #6c63ff;
+    }
+
+    p {
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #111;
+      color: #fff;
+    }
+
+    th, td {
+      border: 1px solid #444;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #222;
+      color: #00ff80;
+    }
+
+    tr:nth-child(even) {
+      background: #1a1a1a;
+    }
+
+    textarea {
+      width: 100%;
+      background: #0d0d0d;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 6px;
+      resize: vertical;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #6c63ff;
+    }
+
+    button {
+      background: #6c63ff;
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #5a52d6;
+    }
+  </style>
+</head>
+<body>
+  <h1>V@St Solutions Dashboard</h1>
+  <p>Welcome! Here are the submitted questions:</p>
+
+  <table id="questionsTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Question</th>
+        <th>Answer</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadQuestions() {
+      try {
+        const response = await fetch("http://localhost:5000/api/questions");
+        const questions = await response.json();
+
+        const tableBody = document.querySelector("#questionsTable tbody");
+        tableBody.innerHTML = "";
+
+        if (!Array.isArray(questions) || questions.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="5">No questions yet</td></tr>`;
+          return;
+        }
+
+        questions.forEach(q => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${q.name}</td>
+            <td>${q.email}</td>
+            <td>${q.question}</td>
+            <td>
+              <textarea id="answer-${q.id}" placeholder="Type your answer...">${q.answer || ""}</textarea>
+            </td>
+            <td>
+              <button onclick="saveAnswer(${q.id})">Save</button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      } catch (err) {
+        console.error("Error loading questions:", err);
+        document.querySelector("#questionsTable tbody").innerHTML =
+          `<tr><td colspan="5">Error loading data</td></tr>`;
+      }
+    }
+
+    async function saveAnswer(id) {
+      const answerText = document.getElementById(`answer-${id}`).value;
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/questions/${id}/answer`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answer: answerText })
+        });
+
+        const result = await response.json();
+        alert(result.message);
+        loadQuestions();
+      } catch (err) {
+        alert("Failed to save answer");
+        console.error(err);
+      }
+    }
+
+    loadQuestions();
+  </script>
+</body>
+</html>
