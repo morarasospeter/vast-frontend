@@ -270,11 +270,22 @@
           body: JSON.stringify({ name, email, question })
         });
 
-        // Always show success feedback
-        document.getElementById("responseMessage").innerText = "✅ Your question has been submitted successfully!";
+        document.getElementById("responseMessage").innerText =
+          "✅ Your question has been submitted successfully!";
+        document.getElementById("responseMessage").style.color = "#1db954";
+
         document.getElementById("questionForm").reset();
+
+        // Optional: clear the message after 5 seconds
+        setTimeout(() => {
+          document.getElementById("responseMessage").innerText = "";
+        }, 5000);
+
       } catch (error) {
-        document.getElementById("responseMessage").innerText = "⚠️ Something went wrong. Please try again.";
+        console.error(error);
+        document.getElementById("responseMessage").innerText =
+          "⚠️ Something went wrong. Please try again.";
+        document.getElementById("responseMessage").style.color = "red";
       }
     });
 
@@ -285,29 +296,35 @@
         return;
       }
 
-      const response = await fetch("https://vast-backend-l9in.onrender.com/api/questions");
-      const questions = await response.json();
+      try {
+        const response = await fetch("https://vast-backend-l9in.onrender.com/api/questions");
+        const questions = await response.json();
 
-      const myQuestions = questions.filter(q => q.email === email);
+        const myQuestions = questions.filter(q => q.email === email);
 
-      const resultDiv = document.getElementById("answerResult");
-      resultDiv.innerHTML = "";
+        const resultDiv = document.getElementById("answerResult");
+        resultDiv.innerHTML = "";
 
-      if (myQuestions.length === 0) {
-        resultDiv.innerHTML = `<p>No questions found for this email.</p>`;
-        return;
+        if (myQuestions.length === 0) {
+          resultDiv.innerHTML = `<p>No questions found for this email.</p>`;
+          return;
+        }
+
+        myQuestions.forEach(q => {
+          const box = document.createElement("div");
+          box.classList.add("answer-box");
+          box.innerHTML = `
+            <p><strong>Question:</strong> ${q.question}</p>
+            <p><strong>Submitted:</strong> ${new Date(q.date).toLocaleString()}</p>
+            <p><strong>Answer:</strong> ${q.answer || "Pending reply from tutor."}</p>
+          `;
+          resultDiv.appendChild(box);
+        });
+      } catch (error) {
+        console.error(error);
+        document.getElementById("answerResult").innerHTML =
+          `<p>⚠️ Could not fetch answers. Please try again later.</p>`;
       }
-
-      myQuestions.forEach(q => {
-        const box = document.createElement("div");
-        box.classList.add("answer-box");
-        box.innerHTML = `
-          <p><strong>Question:</strong> ${q.question}</p>
-          <p><strong>Submitted:</strong> ${new Date(q.date).toLocaleString()}</p>
-          <p><strong>Answer:</strong> ${q.answer || "Pending reply from tutor."}</p>
-        `;
-        resultDiv.appendChild(box);
-      });
     }
   </script>
 </body>
